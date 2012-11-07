@@ -147,11 +147,12 @@ function wlo_get_option_post( $option ) {
 		$posts = get_posts( array(
 			'post_type' => WLO_POST_TYPE,
 			'posts_per_page' => 1,
-			'name' => $option
+			'name' => $option,
+			'fields' => 'ids'
 			) );
 
 		if ( count( $posts ) === 1 ) {
-			$post_id = $posts[0]->ID;
+			$post_id = $posts[0];
 		}
 	}
 
