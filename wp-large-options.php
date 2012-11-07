@@ -163,11 +163,10 @@ function wlo_get_option_post( $option ) {
 function wlo_get_option_name( $option ) {
 	$option = trim( $option );
 
+	$option = sanitize_title( $option );
+	
 	if ( empty( $option ) )
 		return false;
-
-	if ( 0 !== strpos( $option, WLO_POST_TYPE ) )
-		$option = sprintf( '%s_%s', WLO_POST_TYPE, $option );
 
 	return $option;
 }
