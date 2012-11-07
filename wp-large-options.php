@@ -36,7 +36,7 @@ define( 'WLO_POST_TYPE', 'wlo_option' );
  * @return boolean 
  */
 function wlo_add_option( $option, $value ) {
-	$option = trim( $option );
+	$option = wlo_get_option_name( $option );
 	if ( empty( $option ) )
 		return false;
 
@@ -73,7 +73,7 @@ function wlo_add_option( $option, $value ) {
  * @return boolean 
  */
 function wlo_update_option( $option, $newvalue ) {
-	$option = trim( $option );
+	$option = wlo_get_option_name( $option );
 	if ( empty( $option ) )
 		return false;
 
@@ -107,7 +107,7 @@ function wlo_update_option( $option, $newvalue ) {
  * @return boolean 
  */
 function wlo_delete_option( $option ) {
-	$option = trim( $option );
+	$option = wlo_get_option_name( $option );
 	if ( empty( $option ) )
 		return false;
 
@@ -124,7 +124,7 @@ function wlo_delete_option( $option ) {
  * @return mixed 
  */
 function wlo_get_option( $option, $default = false ) {
-	$option = trim( $option );
+	$option = wlo_get_option_name( $option );
 	if ( empty( $option ) )
 		return false;
 
@@ -143,6 +143,7 @@ function wlo_get_option( $option, $default = false ) {
  * @return bool|object 
  */
 function wlo_get_option_post( $option ) {
+	$option = wlo_get_option_name( $option );
 	if ( false === ($post_id = wp_cache_get( 'wlo_option_id_' . $option ) ) ) {
 		$posts = get_posts( array(
 			'post_type' => WLO_POST_TYPE,
@@ -156,6 +157,18 @@ function wlo_get_option_post( $option ) {
 	}
 
 	return $post_id ? get_post( $post_id ) : false;
+}
+
+function wlo_get_option_name( $option ) {
+	$option = trim( $option );
+
+	if ( empty( $option ) )
+		return false;
+
+	if ( 0 !== strpos( $option, WLO_POST_TYPE ) )
+		$option = sprintf( '%s_%s', WLO_POST_TYPE, $option );
+
+	return $option;
 }
 
 
