@@ -154,6 +154,7 @@ function wlo_get_option_post( $option ) {
 
 		if ( count( $posts ) === 1 ) {
 			$post_id = $posts[0];
+			wp_cache_set('wlo_option_id_' . $option, $post_id);
 		}
 	}
 
