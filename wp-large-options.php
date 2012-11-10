@@ -28,6 +28,7 @@
  */
 
 define( 'WLO_POST_TYPE', 'wlo_option' );
+define( 'WLO_META_KEY', 'wp-large-option-value');
 
 /**
  * Add a new option.
@@ -44,23 +45,19 @@ function wlo_add_option( $option, $value ) {
 		return false;
 	}
 
-	$_value = $value;
-	$value = maybe_serialize( $value );
-
 	$post = array(
 		'post_type' => WLO_POST_TYPE,
 		'post_name' => $option,
 		'post_title' => $option,
 		'post_status' => 'publish',
-		'post_content' => $value,
 	);
 
 	$post_id = wp_insert_post( $post );
 
-	if ( !is_wp_error( $post_id ) ) {
+	if ( !is_wp_error( $post_id ) && update_post_meta($post_id, WLO_META_KEY, $value) ) {
 		wp_cache_set( 'wlo_option_id_' . $option, $post_id );
-		do_action( "add_wlo_option_{$option}", $option, $_value );
-		do_action( 'added_wlo_option', $option, $_value );
+		do_action( "add_wlo_option_{$option}", $option, $value );
+		do_action( 'added_wlo_option', $option, $value );
 		return true;
 	}
 	return false;
@@ -86,16 +83,11 @@ function wlo_update_option( $option, $newvalue ) {
 	if ( false === $oldvalue )
 		return wlo_add_option( $option, $newvalue );
 
-	$_newvalue = $newvalue;
-	$newvalue = maybe_serialize( $newvalue );
+	$post_id = wlo_get_option_post_id( $option );
 
-	$post = wlo_get_option_post( $option );
-	$post->post_content = $newvalue;
-	$post_id = wp_insert_post( ( array ) $post );
-
-	if ( !is_wp_error( $post_id ) ) {
-		do_action( "update_wlo_option_{$option}", $oldvalue, $_newvalue );
-		do_action( 'updated_wlo_option', $option, $oldvalue, $_newvalue );
+	if ( update_post_meta($post_id, WLO_META_KEY, $newvalue) ) {
+		do_action( "update_wlo_option_{$option}", $oldvalue, $newvalue );
+		do_action( 'updated_wlo_option', $option, $oldvalue, $newvalue );
 		return true;
 	}
 	return false;
@@ -111,8 +103,8 @@ function wlo_delete_option( $option ) {
 	if ( empty( $option ) )
 		return false;
 
-	if ( $post = wlo_get_option_post( $option ) ) {
-		return wp_delete_post( $post->ID, true );
+	if ( $post_id = wlo_get_option_post_id( $option ) ) {
+		return wp_delete_post( $post_id, true );
 	}
 	return false;
 }
@@ -131,10 +123,13 @@ function wlo_get_option( $option, $default = false ) {
 	if ( defined( 'WP_SETUP_CONFIG' ) )
 		return false;
 
-	if ( !( $post = wlo_get_option_post( $option ) ) )
+	if ( !( $post_id = wlo_get_option_post_id( $option ) ) )
 		return $default;
-
-	return maybe_unserialize( $post->post_content );
+	
+	if ( false === ($value = get_post_meta( $post_id, WLO_META_KEY, true )) ) {
+		return $default;
+	}
+	return $value;
 }
 
 /**
@@ -142,7 +137,7 @@ function wlo_get_option( $option, $default = false ) {
  * @param string $option
  * @return bool|object 
  */
-function wlo_get_option_post( $option ) {
+function wlo_get_option_post_id( $option ) {
 	$option = wlo_get_option_name( $option );
 	if ( false === ($post_id = wp_cache_get( 'wlo_option_id_' . $option ) ) ) {
 		$posts = get_posts( array(
@@ -158,7 +153,7 @@ function wlo_get_option_post( $option ) {
 		}
 	}
 
-	return $post_id ? get_post( $post_id ) : false;
+	return $post_id;
 }
 
 function wlo_get_option_name( $option ) {
