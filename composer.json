@@ -2,12 +2,16 @@
     "name": "voceconnect/wp-large-options",
     "description": "You may wish to store a larger option value than is recommended on WordPress.com. If your option data will exceed 400K, or is of an unpredictable size (such as an HTML fragment etc.) you should use the wp_large_options plugin to store the option in a cache-safe manner. Failure to do this could result in the option not being cached, and instead fetched repeatedly from the DB, which could cause performance problems.",
     "license": "GPL-2.0+",
+    "type": "library",
     "authors": [
         {
             "name": "Mike Pretty",
             "email": "mpretty@voceconnect.com"
         }
     ],
+    "require": {
+        "composer/installers": "~1.0"
+    },
     "autoload": {
         "files": ["wp-large-options.php"]
     }
