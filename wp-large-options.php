@@ -6,7 +6,7 @@
   Description: Allows larger options to be stored in custom post type to prevent
   all_options from overflowing 1MB value limit.
   Author: prettyboymp, voceplatforms
-  Version: 1.0
+  Version: 1.0.1
   Author URI: http://www.vocecommunications.com
 
   GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
