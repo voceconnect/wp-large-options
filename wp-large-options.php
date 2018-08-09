@@ -104,6 +104,7 @@ function wlo_delete_option( $option ) {
 		return false;
 
 	if ( $post_id = wlo_get_option_post_id( $option ) ) {
+		wp_cache_delete( 'wlo_option_id_' . $option );
 		return wp_delete_post( $post_id, true );
 	}
 	return false;
